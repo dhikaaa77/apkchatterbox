@@ -1,22 +1,20 @@
 require('dotenv').config();
-
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 const PORT = process.env.PORT || 3000;
 
-// Validasi token agar tidak error saat dijalankan
-if (!REPLICATE_API_TOKEN) {
-  console.error('❌ Error: REPLICATE_API_TOKEN tidak ditemukan di environment.');
-  process.exit(1);
-}
-
+// 🔹 Health check untuk Railway
 app.get('/', (req, res) => {
   res.json({ message: '✅ Chatterbox API is running!' });
 });
@@ -24,44 +22,30 @@ app.get('/', (req, res) => {
 app.post('/api/chatterbox', async (req, res) => {
   try {
     const { text } = req.body;
-
-    if (!text) {
-      return res.status(400).json({ error: 'Text is required' });
-    }
-
-    console.log('📥 Received text:', text);
+    if (!text) return res.status(400).json({ error: 'Text is required' });
 
     const response = await axios.post(
       'https://api.replicate.com/v1/models/resemble-ai/chatterbox/predictions',
-      {
-        input: { prompt: text },
-      },
+      { input: { prompt: text } },
       {
         headers: {
-          'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
+          Authorization: `Bearer ${REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json',
-          'Prefer': 'wait',
+          Prefer: 'wait',
         },
       }
     );
 
-    console.log('✅ Success response');
     res.json(response.data);
   } catch (error) {
     console.error('❌ Error:', error.response?.data || error.message);
-
-    if (error.response) {
+    if (error.response)
       return res.status(error.response.status).json(error.response.data);
-    }
-
     res.status(500).json({ error: error.message });
   }
 });
 
-// 🚀 Penting: gunakan '0.0.0.0' agar bisa diakses dari mana pun (bukan hanya localhost)
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Endpoint: /api/chatterbox`);
-});
-
+// 🔹 Penting: 0.0.0.0 + process.env.PORT
+app.listen(PORT, '0.0.0.0', () =>
+  console.log(`🚀 Server running on port ${PORT}`)
+);
