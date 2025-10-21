@@ -17,6 +17,10 @@ if (!REPLICATE_API_TOKEN) {
   process.exit(1);
 }
 
+app.get('/', (req, res) => {
+  res.json({ message: '✅ Chatterbox API is running!' });
+});
+
 app.post('/api/chatterbox', async (req, res) => {
   try {
     const { text } = req.body;
@@ -60,3 +64,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Endpoint: /api/chatterbox`);
 });
+
