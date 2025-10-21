@@ -14,18 +14,16 @@ app.use(cors({
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 const PORT = process.env.PORT || 3000;
 
-// ✅ Health-check endpoint (biar Railway tahu app kamu hidup)
+// ✅ Health check — wajib untuk Railway agar tahu server hidup
 app.get('/', (req, res) => {
   res.status(200).json({ message: '✅ Chatterbox API is running!' });
 });
 
-// ✅ Endpoint utama kamu
+// ✅ Endpoint utama
 app.post('/api/chatterbox', async (req, res) => {
   try {
     const { text } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: 'Text is required' });
-    }
+    if (!text) return res.status(400).json({ error: 'Text is required' });
 
     console.log('📥 Received text:', text);
 
@@ -41,7 +39,6 @@ app.post('/api/chatterbox', async (req, res) => {
       }
     );
 
-    console.log('✅ Response OK');
     res.json(response.data);
   } catch (error) {
     console.error('❌ Error:', error.response?.data || error.message);
@@ -52,7 +49,7 @@ app.post('/api/chatterbox', async (req, res) => {
   }
 });
 
-// ✅ Penting: dengarkan di 0.0.0.0 dan gunakan PORT dari Railway
+// ✅ Penting: dengarkan di 0.0.0.0 supaya Railway bisa konek
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
