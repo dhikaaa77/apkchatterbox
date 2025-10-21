@@ -9,6 +9,7 @@ app.use(express.json());
 app.use(cors());
 
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
+const PORT = process.env.PORT || 3000;
 
 // Validasi token agar tidak error saat dijalankan
 if (!REPLICATE_API_TOKEN) {
@@ -54,7 +55,7 @@ app.post('/api/chatterbox', async (req, res) => {
 });
 
 // 🚀 Penting: gunakan '0.0.0.0' agar bisa diakses dari mana pun (bukan hanya localhost)
-const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Endpoint: /api/chatterbox`);
